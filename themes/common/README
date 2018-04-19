@@ -1,0 +1,7 @@
+Configuration and Measurement classes
+
+To build and run test cases:
+    make test
+
+For usage see Configuration.h and Measurements.h.
+    

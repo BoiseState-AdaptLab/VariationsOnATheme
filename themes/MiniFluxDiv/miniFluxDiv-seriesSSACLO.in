@@ -1,0 +1,68 @@
+#
+#   This file is part of MiniFluxDiv.
+
+#   MiniFluxDiv is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   any later version.
+
+#   MiniFluxDiv is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with MiniFluxDiv. If not, see <http://www.gnu.org/licenses/>.
+#
+
+#flux step 1
+FLUX1X_dom:= [numCell]->{STM_FLUX1X[c,z,y,x] : 0<=z<numCell and 0<=y<numCell and 0<=x<=numCell and 0<=c<5 and numCell>1};
+
+#flux step 2
+FLUX2X_dom:= [numCell]->{STM_FLUX2X[c,z,y,x] : 0<=z<numCell and 0<=y<numCell and 0<=x<=numCell and 0<=c<5 and numCell>1};
+
+# Diff step 3
+DIFFX_dom:= [numCell]->{STM_DIFFX[c,z,y,x] : 0<=z<numCell and 0<=y<numCell and 0<=x<numCell and 0<=c<5 and numCell>1};
+
+#### y - direction
+#flux step 1
+FLUX1Y_dom:= [numCell]->{STM_FLUX1Y[c,z,y,x] : 0<=z<numCell and 0<=y<=numCell and 0<=x<numCell and 0<=c<5 and numCell>1};
+
+#flux step 2
+FLUX2Y_dom:= [numCell]->{STM_FLUX2Y[c,z,y,x] : 0<=z<numCell and 0<=y<=numCell and 0<=x<numCell and 0<=c<5 and numCell>1};
+
+# Diff step 3
+DIFFY_dom:= [numCell]->{STM_DIFFY[c,z,y,x] : 0<=z<numCell and 0<=y<numCell and 0<=x<numCell and 0<=c<5 and numCell>1};
+
+#### z - direction
+#flux step 1
+FLUX1Z_dom:= [numCell]->{STM_FLUX1Z[c,z,y,x] : 0<=z<=numCell and 0<=y<numCell and 0<=x<numCell and 0<=c<5 and numCell>1};
+
+#flux step 2
+FLUX2Z_dom:= [numCell]->{STM_FLUX2Z[c,z,y,x] : 0<=z<=numCell and 0<=y<numCell and 0<=x<numCell and 0<=c<5 and numCell>1};
+
+# Diff step 3
+DIFFZ_dom:= [numCell]->{STM_DIFFZ[c,z,y,x] : 0<=z<numCell and 0<=y<numCell and 0<=x<numCell and 0<=c<5 and numCell>1};
+
+union := FLUX1X_dom + FLUX2X_dom + DIFFX_dom + FLUX1Y_dom + FLUX2Y_dom + DIFFY_dom + FLUX1Z_dom + FLUX2Z_dom + DIFFZ_dom;
+
+# Transformation to enforce the proper order (F1X, F2X, DX, F1Y, F2Y, DY, F1Z, F2Z, DZ...
+chain:= [numCell] -> {
+        STM_FLUX1X[c,z,y,x] -> [0,c,z,y,x];
+        STM_FLUX2X[c,z,y,x] -> [1,c,z,y,x];
+        STM_DIFFX[c,z,y,x] -> [2,c,z,y,x];
+
+        STM_FLUX1Y[c,z,y,x] -> [3,c,z,y,x];
+        STM_FLUX2Y[c,z,y,x] -> [4,c,z,y,x];
+        STM_DIFFY[c,z,y,x] -> [5,c,z,y,x];
+
+        STM_FLUX1Z[c,z,y,x] -> [6,c,z,y,x];
+        STM_FLUX2Z[c,z,y,x] -> [7,c,z,y,x];
+        STM_DIFFZ[c,z,y,x] -> [8,c,z,y,x];
+};
+
+# apply the transformation
+chain_result := chain * union;
+
+# generate the code
+codegen(chain_result)

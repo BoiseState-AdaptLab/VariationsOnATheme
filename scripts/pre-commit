@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+
+# Author: Sarah Willer
+# Date: August 2016, revised December 2016
+#
+##############################################################################
+# pre-commit must be moved to .git/hooks to work!
+##############################################################################
+#
+# This pre-commit file was adapted from the standard example hook script
+# pre-commit.sample found in the directory .git/hooks. 
+#
+# pre-commit is called by "git commit" with no arguments.
+#
+# pre-commit should exit with non-zero status after issuing an appropriate
+# message if it wants to stop the commit.
+#
+# This adaptation of pre-commit currently DOES NOT HINDER THE COMMIT.
+#
+##############################################################################
+#
+# pre-commit calls check_config_update.py on any new or changed files
+# containing the search phrase 'addParam'.
+# 
+# For each file on which it is called, check_config_update.py looks for added
+# configuration options and prints them under the file name in the commit
+# status message with a reminder to update new options to Configuration.txt.
+#
+# Resources referenced in writing this script:
+# https://www.atlassian.com/git/tutorials/git-hooks/local-hooks
+# http://stackoverflow.com/questions/4940032/search-for-string-in-txt-file-python
+# https://pypi.python.org/pypi/git-pre-commit-hook
+# http://stackoverflow.com/questions/24968112/searching-files-with-pre-commit
+# http://unix.stackexchange.com/questions/24140/return-only-the-portion-of-a-line-after-a-matching-pattern
+# http://stackoverflow.com/questions/8369219/how-do-i-read-a-text-file-into-a-string-variable-in-python
+##############################################################################
+
+# From https://www.atlassian.com/git/tutorials/git-hooks/local-hooks :
+# "In order to use git diff-index, we need to figure out which commit
+#    reference we're comparing the index to. Normally, this is HEAD; however,
+#    HEAD doesn't exist when creating the initial commit, so our first task 
+#    is to account for this edge case."
+#############################################################################
+
+# Check to see whether or not HEAD is a valid reference:
+if git rev-parse --verify HEAD >/dev/null 2>&1; then
+    against=HEAD
+else
+    # "The 4b825d... hash is a magic commit ID that represents an empty commit."
+    against=4b825dc642cb6eb9a060e54bf8d69288fbee4904
+fi
+
+# Iterate through the new or updated files added in this commit:
+for FILE in `git diff-index --name-status $against -- | cut -c3-` ; do
+    # Check if the file contains 'addParam'
+    if [ "grep 'addParam' $FILE" ]
+    then
+        ./scripts/check_config_update.py $FILE
+    fi
+done
+exit

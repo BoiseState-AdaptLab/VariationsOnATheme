@@ -1,0 +1,68 @@
+/****************************************************************************
+ * Configuration.txt
+ *
+ * Created by Sarah Willer July 2016
+ *
+ * Centralized list of benchmark parameters removed from Configuration.cpp
+ * and placed here for manual cut-and-paste and updating as needed.
+ *
+ * This change is intended to provide a simple way to synchronize parameter
+ * creation and usage across benchmarks and by different developers. This
+ * change is also intended to avoid having all parameter options added and
+ * displayed by default with each benchmark run even when most are not being
+ * used in any one case (which was happening when they were added by default
+ * in Configuration.cpp).
+
+ * Help and verify options have been left as constructor defaults.
+ *
+ * @ args for addParam methods:    std::string fieldname
+ *                                 char single_char
+ *                                 int/Bool/String init_val
+ *                                 std::string help_str
+ *
+ * In addParams, call to hasConflict() prevents fieldname or command
+ * character collisions within the same benchmark.
+ *
+****************************************************************************/
+
+BEGIN GENERAL
+addParamInt("Nx",'k',100,"--Nx <problem-size> for x-axis in elements (N)");
+addParamInt("Ny",'l',100,"--Ny <problem-size> for y-axis in elements (N)");
+addParamInt("Nz",'m',100,"--Nz <problem-size> for z-axis in elements (N)");
+
+addParamInt("bx",'x',1,"--bx <block-size> for x-axis in elements");
+addParamInt("by",'y',1,"--by <block-size> for y-axis in elements");
+addParamInt("bz",'z',1,"--bz <block-size> for z-axis in elements");
+
+addParamInt("tilex",'a',128,"--tilex <tile-size> for x-axis in elements");
+addParamInt("tiley",'b',128,"--tiley <tile-size> for y-axis in elements");
+addParamInt("tilez",'c',128,"--tilez <tile-size> for z-axis in elements");
+
+addParamInt("T",'T',100,"-T <time-steps>, the number of time steps");
+addParamInt("height",'H',-1,"height <#>, number of time steps in tile");
+addParamInt("tau",'t',30,"--tau <tau>, distance between tiling"
+                                "hyperplanes (all diamond(slab))");
+addParamInt("num_threads",'p',1,"-p <num_threads>, number of cores");
+addParamInt("global_seed", 'g', 1524, "--global_seed "
+                                           "<global_seed>, seed for rng");
+
+addParamBool("n",'n', false, "-n do not print time");
+END GENERAL
+
+BEGIN JACOBI
+/****************************************************************************
+**  Parameter options used in Jacobi benchmarks  ****************************
+****************************************************************************/
+END JACOBI
+
+BEGIN MINIFLUX
+/****************************************************************************
+**  Parameter options used in miniFlux benchmarks  **************************
+****************************************************************************/
+addParamInt("numCell", 'C' , 128 ,
+            "--numCell, the number of cells in a single dimension of a single"
+            " box");
+
+addParamInt("numBox",'B', 32 ,
+            "--numBox, the number of independent boxes to process");
+END MINIFLUX

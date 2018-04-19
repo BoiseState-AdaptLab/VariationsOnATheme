@@ -1,0 +1,105 @@
+#
+#   This file is part of MiniFluxDiv.
+
+#   MiniFluxDiv is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   any later version.
+
+#   MiniFluxDiv is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with MiniFluxDiv. If not, see <http://www.gnu.org/licenses/>.
+#
+
+#flux step 1
+FLUX1X_dom1:= [numCell]->{STM_FLUX1X[c,z,y,x] : 0<=z<numCell and 0<=y<numCell and 0<=x<=numCell and 0<=c<2 and numCell>1};
+FLUX1X_dom2:= [numCell]->{STM_FLUX1X[c,z,y,x] : 0<=z<numCell and 0<=y<numCell and 0<=x<=numCell and 3<=c<5 and numCell>1};
+FLUX1X_domv:= [numCell]->{STM_FLUX1Xv[c,z,y,x] : 0<=z<numCell and 0<=y<numCell and 0<=x<=numCell and c=2 and numCell>1};
+
+#flux step 2
+FLUX2X_dom1:= [numCell]->{STM_FLUX2X[c,z,y,x] : 0<=z<numCell and 0<=y<numCell and 0<=x<=numCell and 0<=c<2 and numCell>1};
+FLUX2X_dom2:= [numCell]->{STM_FLUX2X[c,z,y,x] : 0<=z<numCell and 0<=y<numCell and 0<=x<=numCell and 3<=c<5 and numCell>1};
+FLUX2X_domv:= [numCell]->{STM_FLUX2Xv[c,z,y,x] : 0<=z<numCell and 0<=y<numCell and 0<=x<=numCell and c=2 and numCell>1};
+
+# Diff step 3
+DIFFX_dom:= [numCell]->{STM_DIFFX[c,z,y,x] : 0<=z<numCell and 0<=y<numCell and 0<=x<numCell and 0<=c<5 and numCell>1};
+
+#### y - direction
+#flux step 1
+FLUX1Y_dom1:= [numCell]->{STM_FLUX1Y[c,z,y,x] : 0<=z<numCell and 0<=y<=numCell and 0<=x<numCell and 0<=c<3 and numCell>1};
+FLUX1Y_dom2:= [numCell]->{STM_FLUX1Y[c,z,y,x] : 0<=z<numCell and 0<=y<=numCell and 0<=x<numCell and 4<=c<5 and numCell>1};
+FLUX1Y_domv:= [numCell]->{STM_FLUX1Yv[c,z,y,x] : 0<=z<numCell and 0<=y<=numCell and 0<=x<numCell and c=3 and numCell>1};
+
+#flux step 2
+FLUX2Y_dom1:= [numCell]->{STM_FLUX2Y[c,z,y,x] : 0<=z<numCell and 0<=y<=numCell and 0<=x<numCell and 0<=c<3 and numCell>1};
+FLUX2Y_dom2:= [numCell]->{STM_FLUX2Y[c,z,y,x] : 0<=z<numCell and 0<=y<=numCell and 0<=x<numCell and 4<=c<5 and numCell>1};
+FLUX2Y_domv:= [numCell]->{STM_FLUX2Yv[c,z,y,x] : 0<=z<numCell and 0<=y<=numCell and 0<=x<numCell and c=3 and numCell>1};
+
+# Diff step 3
+DIFFY_dom:= [numCell]->{STM_DIFFY[c,z,y,x] : 0<=z<numCell and 0<=y<numCell and 0<=x<numCell and 0<=c<5 and numCell>1};
+
+#### z - direction
+#flux step 1
+FLUX1Z_dom1:= [numCell]->{STM_FLUX1Z[c,z,y,x] : 0<=z<=numCell and 0<=y<numCell and 0<=x<numCell and 0<=c<4 and numCell>1};
+FLUX1Z_domv:= [numCell]->{STM_FLUX1Zv[c,z,y,x] : 0<=z<=numCell and 0<=y<numCell and 0<=x<numCell and c=4 and numCell>1};
+
+#flux step 2
+FLUX2Z_dom1:= [numCell]->{STM_FLUX2Z[c,z,y,x] : 0<=z<=numCell and 0<=y<numCell and 0<=x<numCell and 0<=c<4 and numCell>1};
+FLUX2Z_domv:= [numCell]->{STM_FLUX2Zv[c,z,y,x] : 0<=z<=numCell and 0<=y<numCell and 0<=x<numCell and c=4 and numCell>1};
+
+# Diff step 3
+DIFFZ_dom:= [numCell]->{STM_DIFFZ[c,z,y,x] : 0<=z<numCell and 0<=y<numCell and 0<=x<numCell and 0<=c<5 and numCell>1};
+
+union := FLUX1X_dom1 +FLUX1X_dom2 +FLUX1X_domv + FLUX2X_dom1 +  FLUX2X_dom2 + FLUX2X_domv + DIFFX_dom + FLUX1Y_dom1 + FLUX1Y_dom2 + FLUX1Y_domv + FLUX2Y_dom1 + FLUX2Y_dom2 + FLUX2Y_domv + DIFFY_dom + FLUX1Z_dom1 + FLUX1Z_domv + FLUX2Z_dom1 + FLUX2Z_domv + DIFFZ_dom;
+
+# See miniFluxDiv-seriesReduceCLO.in for original schedule...
+chain:= [numCell] -> {
+        # First we move Fx1(u), Fy1(v), and Fz1(w) to be done first...
+        # These will all be fused at L0
+        STM_FLUX1Xv[c,z,y,x] -> [0,c,z,y,x,0];
+        STM_FLUX1Yv[c,z,y,x] -> [0,c,z,y,x,0];
+        STM_FLUX1Zv[c,z,y,x] -> [0,c,z,y,x,0];
+
+        # These will all be fused at L1:
+        # Remaining Fx1(*) components to L1
+        STM_FLUX1X[c,z,y,x] -> [1,c,z,y,x,0] ;
+
+        # Move Fx2(*) to L1
+        STM_FLUX2X[c,z,y,x] -> [1,c,z,y,x,1];
+        STM_FLUX2Xv[c,z,y,x] -> [1,c,z,y,x,1];
+
+        # Move Dx(*) to L1
+        STM_DIFFX[c,z,y,x] -> [1,c,z,y,x+1,2];
+
+        # These will all be fused at L2:
+        # Move remaining Fy1(*) components to L2
+        STM_FLUX1Y[c,z,y,x] -> [2,c,z,y,x,0] ;
+
+        # Move Fy2(*) to L2
+        STM_FLUX2Y[c,z,y,x] -> [2,c,z,y,x,1];
+        STM_FLUX2Yv[c,z,y,x] -> [2,c,z,y,x,1];
+
+        # Move Dy(*) to L2
+        STM_DIFFY[c,z,y,x] -> [2,c,z,y+1,x,2];
+
+        # These will all be fused at L3:
+        # Move remaining Fz1(*) components to L3
+        STM_FLUX1Z[c,z,y,x] -> [3,c,z,y,x,0] : 0 <= c <= 3;
+
+        # Move Fz2(*) to L3
+        STM_FLUX2Z[c,z,y,x] -> [3,c,z,y,x,1];
+        STM_FLUX2Zv[c,z,y,x] -> [3,c,z,y,x,1];
+
+        # Move Dz(*) to L3
+        STM_DIFFZ[c,z,y,x] -> [3,c,z+1,y,x,2];
+};
+
+# apply the transformation
+result := chain * union;
+
+# generate the code
+codegen(result)

@@ -1,0 +1,61 @@
+#
+#   This file is part of MiniFluxDiv.
+
+#   MiniFluxDiv is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   any later version.
+
+#   MiniFluxDiv is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with MiniFluxDiv. If not, see <http://www.gnu.org/licenses/>.
+#
+
+CC=gcc
+CXX=g++
+COMMON_DIR=../common
+
+CFLAGS = -I/usr/include -I/usr/local/include 
+COPTS = -fopenmp -O3
+
+VARIANTS = miniFluxDiv-seriesSSACLO\
+           miniFluxDiv-seriesReduceCLO\
+           miniFluxDiv-fuseAmongDirsSSA\
+           miniFluxDiv-fuseAllCLOSSA\
+           miniFluxDiv-fuseAllCLOREDUX\
+           miniFluxDiv-fuseWithinDirsCLOSSA\
+           miniFluxDiv-fuseWithinDirsCLOREDUX\
+           miniFluxDiv-fuseAllCLOReduxOverlap\
+           miniFluxDiv-seriesHalide-gen
+
+#HALIDE_HOME=$(COMMON_DIR)/halide
+PYTHON=python3
+
+.PHONY: clean all test
+
+all:
+	$(PYTHON) ../../scripts/islcodegen.py miniFluxDiv-seriesSSACLO.cfg
+	$(PYTHON) ../../scripts/islcodegen.py miniFluxDiv-seriesReduceCLO.cfg
+	$(PYTHON) ../../scripts/islcodegen.py miniFluxDiv-fuseAmongDirsSSA.cfg
+	$(PYTHON) ../../scripts/islcodegen.py miniFluxDiv-fuseAllCLOSSA.cfg
+	$(PYTHON) ../../scripts/islcodegen.py miniFluxDiv-fuseAllCLOREDUX.cfg
+	$(PYTHON) ../../scripts/islcodegen.py miniFluxDiv-fuseWithinDirsCLOSSA.cfg
+	$(PYTHON) ../../scripts/islcodegen.py miniFluxDiv-fuseWithinDirsCLOREDUX.cfg
+	$(PYTHON) ../../scripts/islcodegen.py miniFluxDiv-fuseAllCLOReduxOverlap.cfg
+	#$(PYTHON) ../../scripts/islcodegen.py -I $(HALIDE_HOME)/include -L $(HALIDE_HOME)/bin -k Halide:dl miniFluxDiv-seriesHalide-gen.cfg
+
+test:
+	for v in  $(VARIANTS);\
+	do\
+	  $$v -C 16 -B 28 -v;\
+	done;\
+	echo "Testing Complete"
+
+clean:
+	rm -f *o
+	rm -f $(VARIANTS)
+
