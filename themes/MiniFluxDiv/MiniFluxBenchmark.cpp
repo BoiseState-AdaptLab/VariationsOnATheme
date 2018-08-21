@@ -464,8 +464,6 @@ bool mini_flux_div_comp(Real** new_boxes, Real** ref_boxes, Configuration& confi
 
     loc.clear();
 
-    fprintf(stderr, "b,c,z,y,x,i,f,e\n");
-
     bool status = true;
     for(int idx=0;idx < numBox;idx++){
         Real* truth = ref_boxes[idx];
@@ -479,8 +477,6 @@ bool mini_flux_div_comp(Real** new_boxes, Real** ref_boxes, Configuration& confi
                         Real truth_val = *(GET_VAL_PTR(truth,c,iz,iy,ix));
 
                         int ndx = (c)*full_numCell3 + ((iz)+nGhost) * full_numCell2 + ((iy)+nGhost)*full_numCell+((ix)+nGhost);
-                        fprintf(stderr, "%d,%d,%d,%d,%d,%d,%g,%g\n", idx, c, iz, iy, ix, ndx, hope_val, truth_val);
-
                         if (hope_val > (truth_val+e) ||
                             hope_val < (truth_val-e)) {
 
