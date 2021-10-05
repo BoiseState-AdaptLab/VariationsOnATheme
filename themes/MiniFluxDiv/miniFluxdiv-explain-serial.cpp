@@ -392,4 +392,5 @@ Real** mini_flux_div_explain(Real** old_boxes,Real** new_boxes,
   double time = (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
                         (double) (tv2.tv_sec - tv1.tv_sec);  
   measurements.setField("ExplainTime",time);
+  return new_boxes;
 }
