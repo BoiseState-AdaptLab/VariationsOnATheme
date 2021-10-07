@@ -440,8 +440,25 @@ Real** mini_flux_div_lc(Real** old_boxes,Real** new_boxes,
         }
     }
 
+    // Print out computed values
+    for (int idx = 0; idx < numBox; idx++) {
+        Real *hope_box = new_boxes[idx];
+        for (int iz = 0; iz < numCell; iz++) {
+            for (int iy = 0; iy < numCell; iy++) {
+                for (int ix = 0; ix < numCell; ix++) {
+                    for (int c = 0; c < numComp; c++) {
+                        Real hope_val = *(GET_VAL_PTR(hope_box, c, iz, iy, ix));
+                        printf("%d,%d,%d,%d,%f\n", c, iz, iy, ix, hope_val);
+                    }
+                }
+            }
+        }
+    }
+
     gettimeofday(&tv2, NULL);
     double time = (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
                   (double) (tv2.tv_sec - tv1.tv_sec);
     measurements.setField("RunTime",time);
+
+    return new_boxes;
 }
